@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Subdivision Development Cost Calculator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    max-width: 700px;
+  }
+  h1, h2 {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+  }
+  table {
+    width:100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    text-align:left;
+    padding:8px;
+    border-bottom:1px solid #ccc;
+  }
+  .calculate-btn {
+    display: inline-block;
+    margin:20px 0;
+    padding:10px 15px;
+    background:#007BFF;
+    color:#fff;
+    text-decoration:none;
+    border-radius:5px;
+    cursor:pointer;
+  }
+  .result {
+    font-weight:bold;
+  }
+  input[type="number"], input[type="text"] {
+    width:100%;
+    box-sizing:border-box;
+    padding:5px;
+  }
+</style>
+</head>
+<body>
+<h1>Subdivision Development Cost Calculator</h1>
+<p>Enter your project details and click "Calculate" to estimate development costs.</p>
+
+<h2>Project Info</h2>
+<table>
+  <tr>
+    <th>Number of Lots</th>
+    <td><input type="number" id="numLots" value="120" /></td>
+  </tr>
+</table>
+
+<h2>Land & Entitlement</h2>
+<table>
+  <tr>
+    <th>Item</th><th>Units</th><th>Unit $</th><th>Qty</th><th>Cost</th>
+  </tr>
+  <tr>
+    <td>Land Purchase (Acres)</td>
+    <td>Acres</td>
+    <td><input type="number" id="landPricePerAcre" value="7000"/></td>
+    <td><input type="number" id="acreQty" value="28"/></td>
+    <td><span id="landPurchaseCost"></span></td>
+  </tr>
+  <tr>
+    <td>Engineering (Lump Sum)</td>
+    <td>Lump</td>
+    <td><input type="number" id="engCost" value="25000"/></td>
+    <td>1</td>
+    <td><span id="engCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Surveying (Lump Sum)</td>
+    <td>Lump</td>
+    <td><input type="number" id="surveyCost" value="20000"/></td>
+    <td>1</td>
+    <td><span id="surveyCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Administrative & Legal</td>
+    <td>Lump</td>
+    <td><input type="number" id="adminCost" value="30000"/></td>
+    <td>1</td>
+    <td><span id="adminCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Environmental Studies</td>
+    <td>Lump</td>
+    <td><input type="number" id="envCost" value="5000"/></td>
+    <td>1</td>
+    <td><span id="envCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Soil/Geotechnical Tests</td>
+    <td>Lump</td>
+    <td><input type="number" id="soilCost" value="5000"/></td>
+    <td>1</td>
+    <td><span id="soilCostCalc"></span></td>
+  </tr>
+  <tr>
+    <th colspan="4">Subtotal Land & Entitlement</th>
+    <th><span id="landEntSubtotal"></span></th>
+  </tr>
+</table>
+
+<h2>Site Preparation</h2>
+<table>
+  <tr>
+    <th>Item</th><th>Units</th><th>Unit $</th><th>Qty</th><th>Cost</th>
+  </tr>
+  <tr>
+    <td>Clearing & Grading</td>
+    <td>Lump</td>
+    <td><input type="number" id="clearingCost" value="40000"/></td>
+    <td>1</td>
+    <td><span id="clearingCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Erosion Control</td>
+    <td>Lump</td>
+    <td><input type="number" id="erosionCost" value="10000"/></td>
+    <td>1</td>
+    <td><span id="erosionCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Soil Stabilization</td>
+    <td>Lump</td>
+    <td><input type="number" id="soilStabCost" value="5000"/></td>
+    <td>1</td>
+    <td><span id="soilStabCostCalc"></span></td>
+  </tr>
+  <tr>
+    <th colspan="4">Subtotal Site Prep</th>
+    <th><span id="sitePrepSubtotal"></span></th>
+  </tr>
+</table>
+
+<h2>Roadway & Infrastructure</h2>
+<table>
+  <tr>
+    <th>Item</th><th>Units</th><th>Unit $</th><th>Qty</th><th>Cost</th>
+  </tr>
+  <tr>
+    <td>Road Construction (LF)</td>
+    <td>LF</td>
+    <td><input type="number" id="roadCostPerFt" value="300"/></td>
+    <td><input type="number" id="roadLength" value="5280"/></td>
+    <td><span id="roadCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Street Lighting/Signage</td>
+    <td>Lump</td>
+    <td><input type="number" id="lightingCost" value="50000"/></td>
+    <td>1</td>
+    <td><span id="lightingCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Water & Sewer Mains (Per Lot)</td>
+    <td>Per Lot</td>
+    <td><input type="number" id="waterSewerCostLot" value="5000"/></td>
+    <td>Num Lots</td>
+    <td><span id="waterSewerCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Stormwater Mgmt (Per Lot)</td>
+    <td>Per Lot</td>
+    <td><input type="number" id="stormwaterCostLot" value="2000"/></td>
+    <td>Num Lots</td>
+    <td><span id="stormwaterCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Electric/Gas/Telecom (Per Lot)</td>
+    <td>Per Lot</td>
+    <td><input type="number" id="utilityCostLot" value="2000"/></td>
+    <td>Num Lots</td>
+    <td><span id="utilityCostCalc"></span></td>
+  </tr>
+  <tr>
+    <th colspan="4">Subtotal Road & Infra</th>
+    <th><span id="roadInfraSubtotal"></span></th>
+  </tr>
+</table>
+
+<h2>Lot Improvements</h2>
+<table>
+  <tr>
+    <th>Item</th><th>Units</th><th>Unit $</th><th>Qty</th><th>Cost</th>
+  </tr>
+  <tr>
+    <td>Service Laterals (Per Lot)</td>
+    <td>Per Lot</td>
+    <td><input type="number" id="serviceLateralCost" value="1000"/></td>
+    <td>Num Lots</td>
+    <td><span id="serviceLateralCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Lot Grading/Finishing (Per Lot)</td>
+    <td>Per Lot</td>
+    <td><input type="number" id="lotGradingCost" value="500"/></td>
+    <td>Num Lots</td>
+    <td><span id="lotGradingCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Common Amenities (Lump Sum)</td>
+    <td>Lump</td>
+    <td><input type="number" id="amenitiesCost" value="50000"/></td>
+    <td>1</td>
+    <td><span id="amenitiesCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Landscaping (Lump Sum)</td>
+    <td>Lump</td>
+    <td><input type="number" id="landscapeCost" value="25000"/></td>
+    <td>1</td>
+    <td><span id="landscapeCostCalc"></span></td>
+  </tr>
+  <tr>
+    <th colspan="4">Subtotal Lot Improvements</th>
+    <th><span id="lotImpSubtotal"></span></th>
+  </tr>
+</table>
+
+<h2>Soft Costs</h2>
+<table>
+  <tr>
+    <th>Item</th><th>Units</th><th>Unit $</th><th>Qty</th><th>Cost</th>
+  </tr>
+  <tr>
+    <td>Add’l Engineering/Consulting</td>
+    <td>Lump</td>
+    <td><input type="number" id="addEngCost" value="25000"/></td>
+    <td>1</td>
+    <td><span id="addEngCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Project Management</td>
+    <td>Lump</td>
+    <td><input type="number" id="projMgmtCost" value="20000"/></td>
+    <td>1</td>
+    <td><span id="projMgmtCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Accounting/Legal Fees</td>
+    <td>Lump</td>
+    <td><input type="number" id="acctLegalCost" value="10000"/></td>
+    <td>1</td>
+    <td><span id="acctLegalCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Insurance</td>
+    <td>Lump</td>
+    <td><input type="number" id="insuranceCost" value="5000"/></td>
+    <td>1</td>
+    <td><span id="insuranceCostCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Marketing/Sales</td>
+    <td>Lump</td>
+    <td><input type="number" id="marketingCost" value="15000"/></td>
+    <td>1</td>
+    <td><span id="marketingCostCalc"></span></td>
+  </tr>
+  <tr>
+    <th colspan="4">Subtotal Soft Costs</th>
+    <th><span id="softSubtotal"></span></th>
+  </tr>
+</table>
+
+<h2>Contingency & Reserves</h2>
+<table>
+  <tr>
+    <th>Item</th><th>Base</th><th>%</th><th>Cost</th><th>Notes</th>
+  </tr>
+  <tr>
+    <td>Contingency</td>
+    <td>(Hard Costs)</td>
+    <td><input type="number" id="contingencyPct" value="10"/></td>
+    <td><span id="contingencyCost"></span></td>
+    <td>Percentage of hard costs</td>
+  </tr>
+  <tr>
+    <td>Owner Reserve</td>
+    <td>Lump</td>
+    <td>-</td>
+    <td><input type="number" id="ownerReserveCost" value="50000"/></td>
+    <td>Additional buffer</td>
+  </tr>
+  <tr>
+    <th colspan="3">Subtotal Contingency</th>
+    <th><span id="contingencySubtotal"></span></th>
+    <th></th>
+  </tr>
+</table>
+
+<h2>Financing Costs</h2>
+<table>
+  <tr>
+    <th>Item</th><th>Units</th><th>Unit $</th><th>Qty</th><th>Cost</th>
+  </tr>
+  <tr>
+    <td>Loan Interest</td>
+    <td>Lump</td>
+    <td><input type="number" id="loanInterest" value="100000"/></td>
+    <td>1</td>
+    <td><span id="loanInterestCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Loan Fees & Closing</td>
+    <td>Lump</td>
+    <td><input type="number" id="loanFees" value="10000"/></td>
+    <td>1</td>
+    <td><span id="loanFeesCalc"></span></td>
+  </tr>
+  <tr>
+    <td>Carrying Costs (Taxes, Etc.)</td>
+    <td>Lump</td>
+    <td><input type="number" id="carryingCost" value="5000"/></td>
+    <td>1</td>
+    <td><span id="carryingCostCalc"></span></td>
+  </tr>
+  <tr>
+    <th colspan="4">Subtotal Financing</th>
+    <th><span id="financingSubtotal"></span></th>
+  </tr>
+</table>
+
+<button class="calculate-btn" onclick="calculateCosts()">Calculate</button>
+
+<h2>Results</h2>
+<table>
+  <tr>
+    <th>Total Project Cost</th>
+    <td><span class="result" id="totalProjectCost"></span></td>
+  </tr>
+  <tr>
+    <th>Per-Lot Cost</th>
+    <td><span class="result" id="perLotCost"></span></td>
+  </tr>
+</table>
+
+<script>
+function numVal(id) {
+  return parseFloat(document.getElementById(id).value) || 0;
+}
+
+function calculateCosts() {
+  const lots = numVal('numLots');
+
+  // Land & Entitlement
+  const landPurchase = numVal('landPricePerAcre') * numVal('acreQty');
+  const eng = numVal('engCost');
+  const survey = numVal('surveyCost');
+  const admin = numVal('adminCost');
+  const env = numVal('envCost');
+  const soil = numVal('soilCost');
+  const landEntSubtotal = landPurchase + eng + survey + admin + env + soil;
+
+  document.getElementById('landPurchaseCost').textContent = landPurchase.toFixed(2);
+  document.getElementById('engCostCalc').textContent = eng.toFixed(2);
+  document.getElementById('surveyCostCalc').textContent = survey.toFixed(2);
+  document.getElementById('adminCostCalc').textContent = admin.toFixed(2);
+  document.getElementById('envCostCalc').textContent = env.toFixed(2);
+  document.getElementById('soilCostCalc').textContent = soil.toFixed(2);
+  document.getElementById('landEntSubtotal').textContent = landEntSubtotal.toFixed(2);
+
+  // Site Prep
+  const clearing = numVal('clearingCost');
+  const erosion = numVal('erosionCost');
+  const soilStab = numVal('soilStabCost');
+  const sitePrepSubtotal = clearing + erosion + soilStab;
+
+  document.getElementById('clearingCostCalc').textContent = clearing.toFixed(2);
+  document.getElementById('erosionCostCalc').textContent = erosion.toFixed(2);
+  document.getElementById('soilStabCostCalc').textContent = soilStab.toFixed(2);
+  document.getElementById('sitePrepSubtotal').textContent = sitePrepSubtotal.toFixed(2);
+
+  // Road & Infra
+  const roadConst = numVal('roadCostPerFt') * numVal('roadLength');
+  const lighting = numVal('lightingCost');
+  const waterSewer = numVal('waterSewerCostLot') * lots;
+  const stormwater = numVal('stormwaterCostLot') * lots;
+  const utility = numVal('utilityCostLot') * lots;
+  const roadInfraSubtotal = roadConst + lighting + waterSewer + stormwater + utility;
+
+  document.getElementById('roadCostCalc').textContent = roadConst.toFixed(2);
+  document.getElementById('lightingCostCalc').textContent = lighting.toFixed(2);
+  document.getElementById('waterSewerCostCalc').textContent = waterSewer.toFixed(2);
+  document.getElementById('stormwaterCostCalc').textContent = stormwater.toFixed(2);
+  document.getElementById('utilityCostCalc').textContent = utility.toFixed(2);
+  document.getElementById('roadInfraSubtotal').textContent = roadInfraSubtotal.toFixed(2);
+
+  // Lot Improvements
+  const serviceLateral = numVal('serviceLateralCost') * lots;
+  const lotGrading = numVal('lotGradingCost') * lots;
+  const amenities = numVal('amenitiesCost');
+  const landscape = numVal('landscapeCost');
+  const lotImpSubtotal = serviceLateral + lotGrading + amenities + landscape;
+
+  document.getElementById('serviceLateralCostCalc').textContent = serviceLateral.toFixed(2);
+  document.getElementById('lotGradingCostCalc').textContent = lotGrading.toFixed(2);
+  document.getElementById('amenitiesCostCalc').textContent = amenities.toFixed(2);
+  document.getElementById('landscapeCostCalc').textContent = landscape.toFixed(2);
+  document.getElementById('lotImpSubtotal').textContent = lotImpSubtotal.toFixed(2);
+
+  // Soft Costs
+  const addEng = numVal('addEngCost');
+  const projMgmt = numVal('projMgmtCost');
+  const acctLegal = numVal('acctLegalCost');
+  const insurance = numVal('insuranceCost');
+  const marketing = numVal('marketingCost');
+  const softSubtotal = addEng + projMgmt + acctLegal + insurance + marketing;
+
+  document.getElementById('addEngCostCalc').textContent = addEng.toFixed(2);
+  document.getElementById('projMgmtCostCalc').textContent = projMgmt.toFixed(2);
+  document.getElementById('acctLegalCostCalc').textContent = acctLegal.toFixed(2);
+  document.getElementById('insuranceCostCalc').textContent = insurance.toFixed(2);
+  document.getElementById('marketingCostCalc').textContent = marketing.toFixed(2);
+  document.getElementById('softSubtotal').textContent = softSubtotal.toFixed(2);
+
+  // Contingency & Reserves
+  // Hard costs could be Land&Ent + Site Prep + Road&Infra + Lot Imp
+  const hardCosts = landEntSubtotal + sitePrepSubtotal + roadInfraSubtotal + lotImpSubtotal;
+  const contingencyPct = numVal('contingencyPct') / 100;
+  const contingencyCost = hardCosts * contingencyPct;
+  const ownerReserve = numVal('ownerReserveCost');
+  const contingencySubtotal = contingencyCost + ownerReserve;
+
+  document.getElementById('contingencyCost').textContent = contingencyCost.toFixed(2);
+  document.getElementById('contingencySubtotal').textContent = contingencySubtotal.toFixed(2);
+
+  // Financing
+  const loanInterest = numVal('loanInterest');
+  const loanFees = numVal('loanFees');
+  const carrying = numVal('carryingCost');
+  const financingSubtotal = loanInterest + loanFees + carrying;
+
+  document.getElementById('loanInterestCalc').textContent = loanInterest.toFixed(2);
+  document.getElementById('loanFeesCalc').textContent = loanFees.toFixed(2);
+  document.getElementById('carryingCostCalc').textContent = carrying.toFixed(2);
+  document.getElementById('financingSubtotal').textContent = financingSubtotal.toFixed(2);
+
+  // Total Project Cost
+  const totalProjectCost = landEntSubtotal + sitePrepSubtotal + roadInfraSubtotal + lotImpSubtotal + softSubtotal + contingencySubtotal + financingSubtotal;
+  document.getElementById('totalProjectCost').textContent = totalProjectCost.toFixed(2);
+
+  const perLotCost = totalProjectCost / lots;
+  document.getElementById('perLotCost').textContent = perLotCost.toFixed(2);
+}
+</script>
+
+</body>
+</html>
